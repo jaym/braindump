@@ -1,6 +1,9 @@
 require 'kitchen'
 
 module Braindump
+  class NoConversion < Exception 
+  end
+
   class Converter
     attr_reader :kitchen_yaml
     attr_reader :loader
@@ -36,8 +39,12 @@ module Braindump
 
     def build_instances
       filter_instances.map.with_index do |(suite, platform), index|
-        suite_for(suite, platform)
-      end
+        begin
+          suite_for(suite, platform)
+        rescue NoConversion
+          nil
+        end
+      end.reject(&:nil?)
     end
 
     def filter_instances
@@ -76,7 +83,28 @@ module Braindump
     end
 
     def driver_for(suite, platform)
-      data.driver_data_for(suite.name, platform.name)
+      driver_data = data.driver_data_for(suite.name, platform.name)
+      box = driver_data[:box]
+      ami = [box, platform.name].map do |p|
+        find_ami(p)
+      end.reject(&:nil?)
+      if ami.length > 0
+        {
+          :name => "ec2",
+          :image => ami.first
+        }
+      else
+        raise NoConversion
+      end
+    end
+
+    def find_ami(p)
+      boxes_to_ami = {
+        "ubuntu-12.04" => "ami-f3635fc3",
+        "ubuntu-14.04" => "ami-f15b5dc1",
+        "ubuntu-15.04" => "ami-414c4c71"
+      }
+      boxes_to_ami[p]
     end
 
     def platform_for(platform)
