@@ -1,0 +1,67 @@
+add
+---
+
+braindump add org/cookbook
+
+.braindump
+├── agent
+│   ├── agent.pid
+│   └── jobs
+│       ├── running
+│           ├── PID -> .braindump/cookbooks/chef-client/current/service-init-ubuntu-1204
+│       ├── queued
+│           ├── 000000000002 -> .braindump/cookbooks/chef-client/current/service-init-ubuntu-1404
+└── cookbooks
+    └── chef#chef-client
+        ├── current
+        ├── last
+        └── 20150712134526 
+            ├── service-init-ubuntu-1204
+            │   ├── cookbook
+            │   │   ├── .kitchen.braindump.yml
+            │   │   ├── Berksfile
+            │   │   ├── attributes
+            │   │   └── ...
+            │   ├── spec.json
+            │   ├── status
+            │   ├── STDERR
+            │   └── STDOUT
+            └── service-init-ubuntu-1404
+                ├── cookbook
+                │   ├── .kitchen.braindump.yml
+                │   ├── Berksfile
+                │   ├── attributes
+                │   └── ...
+                ├── spec.json
+                ├── status
+                ├── STDERR
+                └── STDOUT
+
+spec.json:
+{
+  "__type__": "kitchen_instance",
+  "__name__": "service-init-ubuntu-1404",
+  "cookbook": "org/cookbook",
+  "version": "12.4.0-rc.2+20150623082807.git.41.87e631c-1"
+}
+
+status
+------
+braindump status
+
+- Shows the status of the currently/last running job for each cookbook
+
+Cookbook            Job Id                                       Status
+--------            -------                                      ------
+chef/chef-client    20150712134526.service-init-ubuntu-1204      Passed
+chef/chef-client    20150712134526.service-init-ubuntu-1404      Running(Last Failed)
+chef/windows        20150712134526.schedtask                     Passed
+
+
+braindump status org/cookbook
+
+Cookbook            Task Id                                      Status
+--------            -------                                      ------
+chef/chef-client    service-init-ubuntu-1204                     Passed
+chef/chef-client    service-init-ubuntu-1404                     Running(Last Failed)
+
