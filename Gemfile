@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Specify your gem's dependencies in braindump.gemspec
-gemspec
+gemspec :name => 'braindump'
 
 gem 'facets', require: false
 gem 'pry'
