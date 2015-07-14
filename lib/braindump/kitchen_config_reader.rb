@@ -1,10 +1,7 @@
 require 'kitchen'
 
 module Braindump
-  class NoConversion < Exception 
-  end
-
-  class Converter
+  class KitchenConfigReader
     attr_reader :kitchen_yaml
     attr_reader :loader
     attr_reader :data
@@ -15,11 +12,12 @@ module Braindump
       @data = Kitchen::DataMunger.new(loader.read, kitchen_config)
     end
 
-    def convert
-      rekey({
-        :platforms => platforms.map {|p| {:name => p.name}},
-        :suites => build_instances
-      })
+    def instances
+      @instances ||= rekey(build_instances)
+    end
+
+    def platform_names
+      @platform_names ||= platforms.map {|p| p.name}
     end
 
     private
@@ -39,12 +37,8 @@ module Braindump
 
     def build_instances
       filter_instances.map.with_index do |(suite, platform), index|
-        begin
-          suite_for(suite, platform)
-        rescue NoConversion
-          nil
-        end
-      end.reject(&:nil?)
+        suite_for(suite, platform)
+      end
     end
 
     def filter_instances
@@ -83,28 +77,7 @@ module Braindump
     end
 
     def driver_for(suite, platform)
-      driver_data = data.driver_data_for(suite.name, platform.name)
-      box = driver_data[:box]
-      ami = [box, platform.name].map do |p|
-        find_ami(p)
-      end.reject(&:nil?)
-      if ami.length > 0
-        {
-          :name => "ec2",
-          :image => ami.first
-        }
-      else
-        raise NoConversion
-      end
-    end
-
-    def find_ami(p)
-      boxes_to_ami = {
-        "ubuntu-12.04" => "ami-f3635fc3",
-        "ubuntu-14.04" => "ami-f15b5dc1",
-        "ubuntu-15.04" => "ami-414c4c71"
-      }
-      boxes_to_ami[p]
+      data.driver_data_for(suite.name, platform.name)
     end
 
     def platform_for(platform)
