@@ -98,14 +98,24 @@ module Braindump
     end
 
     def head
-      ref = repository.head
-      ref.target_id
+      @head ||= begin
+                  ref = repository.head
+                  ref.target_id
+                end
     end
 
     def update
       origin = repository.remotes['origin']
       origin.fetch('+refs/*:refs/*')
       origin.save
+      head = nil
+    end
+
+    def kitchen_yml
+      @kitchen_yml ||= begin
+                         commit = repository.lookup(head)
+                         repository.read(commit.tree['.kitchen.yml'][:oid]).data
+                       end
     end
 
     def self.clone(git_location, path, bare=false)

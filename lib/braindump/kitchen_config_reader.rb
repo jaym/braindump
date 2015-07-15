@@ -98,7 +98,7 @@ module Braindump
 
     def suite_for(suite, platform)
       {
-        :name => suite.name,
+        :name => Kitchen::Instance.name_for(suite, platform),
         :includes => [platform.name],
         :driver => driver_for(suite, platform),
         :platform => platform_for(platform),

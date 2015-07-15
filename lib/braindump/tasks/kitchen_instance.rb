@@ -59,7 +59,7 @@ module Braindump
     def self.create(task_name, location, cookbook, params = {})
       # params[:chef_version]
       # params[:kitchen_config]
-      
+
       location = File.expand_path(location)
 
       # Create a copy of the cookbook
@@ -93,7 +93,7 @@ module Braindump
       suite_config.delete('driver')
 
       suite_config['provisioner']['require_chef_omnibus'] = params[:chef_version]
-      
+
       kitchen_config = {
         'platforms' => PLATFORMS,
         'driver' => driver_config,
