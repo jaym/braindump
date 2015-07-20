@@ -55,7 +55,7 @@ module Braindump
     end
 
     def task_name(cookbook, build_version, sha, instance)
-      [build_version.to_s, "#{cookbook.org_name}#{cookbook.repo_name}", sha, instance['name']].join('##')
+      [build_version.to_s, "#{cookbook.org_name}##{cookbook.repo_name}", sha, instance['name']].join('##')
     end
 
     def task_location(cookbook, build_version, sha, instance)
