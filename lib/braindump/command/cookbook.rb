@@ -10,6 +10,34 @@ module Braindump
         cookbook_manager = Braindump::CookbookManager.new(parent_options[:home])
         cookbook_manager.add(org, repo)
       end
+
+      desc 'list', 'List the cookbooks being managed'
+      def list
+        print_table(list_cookbooks)
+      end
+
+      private
+
+      def list_cookbooks
+        cookbook_manager = Braindump::CookbookManager.new(parent_options[:home])
+        cookbooks = cookbook_manager.list
+
+        cookbooks.inject([bold(['org', 'repo', 'path'])]) do |memo, cookbook|
+          memo << color_pad([cookbook.org_name, cookbook.repo_name, cookbook.cookbook_path])
+        end
+      end
+
+      def bold(values)
+        values.map do |v|
+          shell.set_color(v, :green)
+        end
+      end
+
+      def color_pad(values)
+        values.map do |v|
+          v + shell.set_color("", :white)
+        end
+      end
     end
   end
 end
