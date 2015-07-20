@@ -5,12 +5,20 @@ module Braindump
       def initialize(status_info)
         @status_info = status_info
       end
+
+      def to_s
+        'queued'
+      end
     end
 
     class Running
       attr_reader :status_info
       def initialize(status_info="")
         @status_info = status_info
+      end
+
+      def to_s
+        'running'
       end
     end
 
@@ -26,12 +34,20 @@ module Braindump
       def initialize(status_info="")
         @status_info = status_info
       end
+
+      def to_s
+        'succeeded'
+      end
     end
 
     class Failed < Finished
       attr_reader :status_info
       def initialize(status_info="")
         @status_info = status_info
+      end
+
+      def to_s
+        'failed'
       end
     end
 
@@ -41,6 +57,10 @@ module Braindump
       def initialize(status_type, status_info="")
         @status_type = status_type
         @status_info = status_info
+      end
+
+      def to_s
+        'unknown'
       end
     end
 

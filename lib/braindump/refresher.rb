@@ -14,10 +14,12 @@ module Braindump
     def run
       cookbook_manager = Braindump::CookbookManager.new(base_dir)
       build_manager = Braindump::BuildManager.new(base_dir)
-      task_queue = Braindump::Agent.task_queue(base_dir)
+      task_manager = Braindump::Agent.task_manager(base_dir)
 
       build_manager.update!
       build_version = build_manager.latest_version
+
+      queued_tasks = []
 
       cookbook_manager.list.each do |cookbook|
         cookbook.repository.update
@@ -31,12 +33,15 @@ module Braindump
                                                   git_sha: sha,
                                                   chef_version: build_version,
                                                   kitchen_config: instance)
-            task_queue.queue(task)
+            if task_manager.register(task)
+              queued_tasks << task
+            end
           rescue Braindump::InvalidInstance => e
             puts e
           end
         end
       end
+      queued_tasks
     end
 
     private

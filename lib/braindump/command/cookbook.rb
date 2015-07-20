@@ -9,6 +9,7 @@ module Braindump
       def add(org, repo)
         cookbook_manager = Braindump::CookbookManager.new(parent_options[:home])
         cookbook_manager.add(org, repo)
+        say("Added cookbook #{org}/#{repo}")
       end
 
       desc 'list', 'List the cookbooks being managed'

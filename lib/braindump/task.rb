@@ -1,5 +1,6 @@
 require 'braindump/exceptions'
 require 'braindump/status'
+require 'braindump/task_name'
 require 'yaml'
 
 module Braindump
@@ -10,6 +11,10 @@ module Braindump
       @task_name = task_name
       @metadata = metadata
       @location = location
+    end
+
+    def name
+      Braindump::TaskName.new(task_name)
     end
 
     def run
@@ -113,7 +118,7 @@ module Braindump
       klass = @@types[spec['__type__'].to_sym]
 
       unless klass
-        raise Braindump::MalformedSpec.new("Unknown type #{specs['__type__']}")
+        raise Braindump::MalformedSpec.new("Unknown type #{spec['__type__']}")
       end
 
       klass.new(spec['__name__'], location, spec)

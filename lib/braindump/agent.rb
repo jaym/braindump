@@ -1,4 +1,5 @@
 require 'braindump/task_queue'
+require 'braindump/task_manager'
 require 'pidfile'
 
 module Braindump
@@ -12,7 +13,7 @@ module Braindump
     def initialize(base_dir)
       @directory = File.expand_path(File.join(base_dir, 'agent'))
       @running_directory = File.join(@directory, 'running')
-      @task_queue = Agent::task_queue(base_dir)
+      @task_manager = Agent::task_manager(base_dir)
     end
 
     def self.start(base_dir)
@@ -96,8 +97,8 @@ module Braindump
       @pidfile = PidFile.new(:piddir => directory, :pidfile => 'agent.pid')
     end
 
-    def self.task_queue(base_dir)
-      Braindump::TaskQueue.from_directory(File.join(base_dir, 'agent', 'queued'))
+    def self.task_manager(base_dir)
+      Braindump::TaskManager.new(base_dir)
     end
 
     private
@@ -106,7 +107,7 @@ module Braindump
     end
 
     def task_queue
-      @task_queue
+      @task_manager.task_queue
     end
 
   end

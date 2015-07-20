@@ -37,6 +37,25 @@ module Braindump
       Braindump::Task.load(real_job_path) if real_job_path
     end
 
+    def list
+      task_list = []
+      File.open(id_file, File::RDWR | File::CREAT) do |lock|
+        lock.flock(File::LOCK_EX)
+
+        jobs = Dir.entries(directory).reject do |f|
+          ['.', '..', 'id'].include? f
+        end.sort
+
+        task_list = jobs.map do |job|
+          job_link_path = File.join(directory, job)
+          File.readlink(job_link_path)
+        end
+      end
+      task_list.map do |t|
+        Braindump::Task.load(t)
+      end
+    end
+
     def self.from_directory(dir)
       FileUtils.mkdir_p(File.expand_path(dir))
       TaskQueue.new(dir)
