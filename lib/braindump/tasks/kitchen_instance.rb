@@ -60,6 +60,11 @@ module Braindump
       # params[:chef_version]
       # params[:kitchen_config]
 
+      platform_name = params[:kitchen_config]['platform']['name']
+      unless PLATFORM_NAMES.include?(platform_name)
+        raise Braindump::InvalidInstance.new("Could not handle platform of type #{platform_name}")
+      end
+
       location = File.expand_path(location)
 
       # Create a copy of the cookbook
@@ -71,7 +76,7 @@ module Braindump
         '__type__'     => 'kitchen_instance',
         '__name__'     => task_name,
         'git_sha'      => local_cookbook.head,
-        'chef_version' => params[:chef_version]
+        'chef_version' => params[:chef_version].to_s
       }
 
       File.write(File.join(location, 'task.spec'), task_spec.to_yaml)
@@ -83,11 +88,6 @@ module Braindump
         'name' => 'ec2',
         'instance_type' => 'm3.medium',
       }
-
-      platform_name = params[:kitchen_config]['platform']['name']
-      unless PLATFORM_NAMES.include?(platform_name)
-        raise Braindump::InvalidInstance.new("Could not handle platform of type #{platform_name}")
-      end
 
       suite_config = params[:kitchen_config]
       suite_config.delete('driver')

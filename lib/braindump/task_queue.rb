@@ -1,3 +1,5 @@
+require 'braindump/task'
+
 module Braindump
   class TaskQueue
     attr_reader :directory, :id_file
@@ -7,13 +9,15 @@ module Braindump
       @id_file = File.join(@directory, 'id')
     end
 
-    def queue(job_spec)
+    def queue(task)
       id = next_id
-      File.symlink(File.expand_path(job_spec), File.join(directory, id))
+      File.symlink(File.expand_path(task.spec_file), File.join(directory, id))
+      task.queued!(id)
       id
     end
 
     def dequeue
+      real_job_path = nil
       File.open(id_file, File::RDWR | File::CREAT) do |lock|
         lock.flock(File::LOCK_EX)
 
@@ -27,12 +31,10 @@ module Braindump
           job_link_path = File.join(directory, job)
           real_job_path = File.readlink(job_link_path)
           File.unlink(job_link_path)
-          real_job_path
-        else
-          # Could reset counter here
-          nil
         end
       end
+
+      Braindump::Task.load(real_job_path) if real_job_path
     end
 
     def self.from_directory(dir)
