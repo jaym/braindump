@@ -28,7 +28,7 @@ module Braindump
 
     def run
       Dir.chdir(File.join(location, 'cookbook')) do
-        logger = Logger.new(run_file)
+        logger = ::Logger.new(run_file)
         begin
           kitchen_test = Mixlib::ShellOut.new('kitchen test', :live_stream => logger, :env => environment, :timeout => 3600)
           kitchen_test.run_command
@@ -43,7 +43,7 @@ module Braindump
 
     def cleanup
       Dir.chdir(File.join(location, 'cookbook')) do
-        logger = Logger.new(cleanup_file)
+        logger = ::Logger.new(cleanup_file)
         begin
           kitchen_destroy = Mixlib::ShellOut.new('kitchen destroy', :live_stream => logger)
           kitchen_destroy.run_command
