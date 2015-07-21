@@ -65,17 +65,21 @@ module Braindump
     end
 
     def self.from_file(status_file)
-      data = File.read(status_file)
-      status_type, status_info = data.split(' ', 2)
-      case status_type
-      when 'queued'
-        Status::Queued.new(status_info)
-      when 'succeeded'
-        Status::Succeeded.new(status_info)
-      when 'failed'
-        Status::Failed.new(status_info)
-      when 'running'
-        Status::Running.new(status_info)
+      if File.exists?(status_file)
+        data = File.read(status_file)
+        status_type, status_info = data.split(' ', 2)
+        case status_type
+        when 'queued'
+          Status::Queued.new(status_info)
+        when 'succeeded'
+          Status::Succeeded.new(status_info)
+        when 'failed'
+          Status::Failed.new(status_info)
+        when 'running'
+          Status::Running.new(status_info)
+        else
+          Status::Unknown.new(status_type, status_info)
+        end
       else
         Status::Unknown.new(status_type, status_info)
       end
