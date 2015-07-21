@@ -62,6 +62,13 @@ module Braindump
                  end
     end
 
+    def task_by_shortname(shortname)
+      task_path = File.join(shortname_dir, shortname)
+      if File.exists?(task_path)
+        load_link(task_path)
+      end
+    end
+
     def running
       task_names = Dir[File.join(running_dir, '*')]
 

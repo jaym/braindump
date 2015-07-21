@@ -26,6 +26,55 @@ module Braindump
         end
       end
 
+      desc 'info <shortname>', 'Display detailed information for a task'
+      def info(shortname)
+        task_manager = Braindump::Agent.task_manager(parent_options[:home])
+        task = task_manager.task_by_shortname(shortname)
+        if !task
+          error(set_color('Task not found', :red))
+          exit(1)
+        end
+
+        build = task.name.keys[0]
+        cookbook = task.name.keys[1]
+        cookbook_sha = task.name.keys[2]
+        kitchen_instance = task.name.keys[3]
+
+        print_table([
+          ['Build:', set_color(build, :bold, :magenta)],
+          ['Cookbook Name:', set_color(cookbook, :bold, :magenta)],
+          ['Cookbook Git SHA:', set_color(cookbook_sha, :bold, :magenta)],
+          ['Kitchen Instance:', set_color(kitchen_instance, :bold, :magenta)]
+        ])
+
+
+        say('Status:')
+        status = task.status
+
+        status_info = case status
+                      when Braindump::Status::Failed
+                        set_color(status.status_info, :red)
+                      when Braindump::Status::Succeeded
+                        set_color(status.status_info, :green)
+                      else
+                        set_color(status.status_info, :red)
+                      end
+        say_status(status.to_s, status_info)
+        say()
+
+        if File.exists?(task.run_file)
+          say('run.out:')
+          say(File.read(task.run_file))
+          say()
+        end
+
+        if File.exists?(task.cleanup_file)
+          say('cleanup.out:')
+          say(File.read(task.cleanup_file))
+          say()
+        end
+      end
+
       private
 
       def format_tasks(tasks)
