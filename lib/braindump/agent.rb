@@ -1,5 +1,6 @@
 require 'braindump/task_queue'
 require 'braindump/task_manager'
+require 'braindump/logger'
 require 'pidfile'
 
 module Braindump
@@ -32,6 +33,14 @@ module Braindump
     end
 
     def refresh
+      last_refresh = time_since_last_refresh
+      Logger.info("Time since last refresh: #{last_refresh}")
+      if last_refresh < refresh_time
+      else
+        Logger.info("Starting refresher")
+        @time_since_last_refresh = Time.now
+        fork_exec("braindump refresh")
+      end
     end
 
     def running_tasks
@@ -42,9 +51,11 @@ module Braindump
     end
 
     def reap_finished
+      Logger.info('Reaping finished tasks')
       running_tasks.each do |task|
         if task.finished?
           File::unlink(task_location(task))
+          Logger.info("Reaping task #{task.name}")
         end
       end
     end
@@ -65,7 +76,7 @@ module Braindump
       location = task_location(task)
       File.symlink(File.expand_path(task.spec_file), location)
       task.running!
-      puts "Starting #{task.task_name}"
+      Logger.info("Starting #{task.task_name}")
       fork_exec("braindump task exec #{location}")
     end
 
@@ -81,7 +92,17 @@ module Braindump
       5
     end
 
+    def time_since_last_refresh
+      @time_since_last_refresh ||= Time.now - refresh_time
+      Time.now - @time_since_last_refresh
+    end
+
+    def refresh_time
+      5*60
+    end
+
     def fork_exec(cmd)
+      Logger.info("Running #{cmd}")
       pid = Process.fork
       if pid.nil? then
         ObjectSpace.each_object(File) do |f|
@@ -96,6 +117,7 @@ module Braindump
     end
 
     def start_agent
+      Logger.info("Starting agent")
       FileUtils.mkdir_p(running_directory)
       @pidfile = PidFile.new(:piddir => directory, :pidfile => 'agent.pid')
     end

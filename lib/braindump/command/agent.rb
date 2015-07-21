@@ -7,6 +7,8 @@ module Braindump
 
       desc 'start', 'Start the agent'
       def start
+        Braindump::Logger.init(File.expand_path(File.join(options[:home], 'log')))
+        Braindump::Logger.level = :debug
         Braindump::Agent.start(parent_options[:home])
       end
     end
