@@ -29,11 +29,11 @@ module Braindump
       private
 
       def format_tasks(tasks)
-        formatted = [bold(['cookbook', 'sha', 'instance', 'status'])]
+        formatted = [bold(['shortname', 'cookbook', 'sha', 'instance', 'status'])]
         tasks.each do |task|
           keys = task.name.keys[1,3]
           keys[1] = truncate_sha(keys[1])
-          formatted << color_pad(keys + [color_status(task.status)])
+          formatted << color_pad([task.shortname] + keys + [color_status(task.status)])
         end
         formatted
       end

@@ -17,6 +17,14 @@ module Braindump
       Braindump::TaskName.new(task_name)
     end
 
+    def shortname(name=nil)
+      if name
+        File.write(shortname_file, name)
+      else
+        File.read(shortname_file)
+      end
+    end
+
     def run
       raise "Must override run"
     end
@@ -43,6 +51,10 @@ module Braindump
 
     def pid_file
       File.join(location, 'running.pid')
+    end
+
+    def shortname_file
+      File.join(location, 'shortname')
     end
 
     def execute

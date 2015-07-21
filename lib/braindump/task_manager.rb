@@ -7,6 +7,7 @@ module Braindump
       @queued_dir = File.join(base_dir, 'task_manager', 'queued')
       @running_dir = File.join(base_dir, 'task_manager', 'running')
       @registered_dir = File.join(base_dir, 'task_manager', 'registered')
+      @shortname_dir = File.join(base_dir, 'task_manager', 'shortname')
       @task_queue = Braindump::TaskQueue.from_directory(queued_dir)
     end
 
@@ -23,7 +24,11 @@ module Braindump
       else
         File.symlink(task.spec_file, task_location)
         if enqueue
-          task_queue.queue(task)
+          id = task_queue.queue(task)
+          FileUtils.mkdir_p(shortname_dir)
+          shortname_location = File.join(shortname_dir, id)
+          File.symlink(task.spec_file, shortname_location)
+          task.shortname(id)
         end
         true
       end
@@ -85,6 +90,10 @@ module Braindump
 
     def registered_dir
       @registered_dir
+    end
+
+    def shortname_dir
+      @shortname_dir
     end
 
     def load_link(link_path)
