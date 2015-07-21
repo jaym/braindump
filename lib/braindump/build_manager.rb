@@ -15,7 +15,7 @@ module Braindump
       current = latest_version
       latest = fetch_latest_version
 
-      if current.nil? || current > latest
+      if current.nil? || latest > current
         File.open(build_file, File::RDWR | File::CREAT) do |f|
           f.flock(File::LOCK_EX)
           read_version = version(f.read)
