@@ -1,4 +1,5 @@
 require 'braindump/omnitruck'
+require 'braindump/logger'
 
 require 'mixlib/versioning'
 
@@ -16,6 +17,7 @@ module Braindump
       latest = fetch_latest_version
 
       if current.nil? || latest > current
+        Logger.debug("Updating version from #{current} to #{latest}")
         File.open(build_file, File::RDWR | File::CREAT) do |f|
           f.flock(File::LOCK_EX)
           read_version = version(f.read)

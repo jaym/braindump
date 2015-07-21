@@ -3,6 +3,7 @@ require 'braindump/build_manager'
 require 'braindump/kitchen_config_reader'
 require 'braindump/tasks/kitchen_instance'
 require 'braindump/agent'
+require 'braindump/logger'
 
 module Braindump
   class Refresher
@@ -19,25 +20,32 @@ module Braindump
       build_manager.update!
       build_version = build_manager.latest_version
 
+      Logger.debug("Found Chef Version #{build_version}")
+
       queued_tasks = []
 
       cookbook_manager.list.each do |cookbook|
         cookbook.repository.update
         sha = cookbook.repository.head
 
+        Logger.debug("Found #{cookbook} at #{sha}")
+
         instances(cookbook).each do |instance|
           name = task_name(cookbook, build_version, sha, instance)
           location = task_location(cookbook, build_version, sha, instance)
           begin
+            Logger.debug("Creating #{name} at #{location}")
             task = Braindump::KitchenInstanceTask.create(name, location, cookbook,
                                                   git_sha: sha,
                                                   chef_version: build_version,
                                                   kitchen_config: instance)
             if task_manager.register(task)
               queued_tasks << task
+            else
+              Logger.warn("Could not register task #{task.name}")
             end
           rescue Braindump::InvalidInstance => e
-            puts e
+            Logger.warn(e.to_s)
           end
         end
       end

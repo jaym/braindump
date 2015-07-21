@@ -4,6 +4,7 @@ require 'braindump/command/cookbook'
 require 'braindump/command/task'
 require 'braindump/command/agent'
 require 'braindump/command/build'
+require 'braindump/logger'
 require 'thor'
 
 module Braindump
@@ -25,8 +26,16 @@ module Braindump
     subcommand 'build', Braindump::Command::Build
 
     desc 'refresh', 'fetch latest chef build and cookbooks'
+    option :log, :type => :string
     def refresh
-      Braindump::Refresher.new(options[:home]).run
+      Braindump::Logger.init(File.expand_path(File.join(options[:home], 'log')))
+      Braindump::Logger.level = :debug
+      begin
+        Braindump::Refresher.new(options[:home]).run
+      rescue => e
+        Logger.error(e)
+        raise
+      end
     end
 
   end

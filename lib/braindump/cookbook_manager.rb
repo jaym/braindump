@@ -71,6 +71,10 @@ module Braindump
         cookbook.repository.update if update_repo
       end
     end
+
+    def to_s
+      "#{org_name}##{repo_name}"
+    end
   end
 
   class CookbookRepository
