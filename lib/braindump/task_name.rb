@@ -3,7 +3,7 @@ module Braindump
     attr_reader :name
 
     def initialize(name)
-      @name = name
+      @name = name.gsub(/\//,'##')
     end
 
     def keys

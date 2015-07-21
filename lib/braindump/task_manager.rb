@@ -30,7 +30,7 @@ module Braindump
     end
 
     def list(pattern=nil)
-      task_names = Dir[File.join(registered_dir, '**/*')]
+      task_names = Dir[File.join(registered_dir, '**/*')].select{|f| File.file? f}
 
       matching = if pattern
                    task_names.select {|task_name| task_name =~ pattern }
@@ -41,6 +41,20 @@ module Braindump
       matching.map do |t|
         load_link(t)
       end
+    end
+
+    def task_names(pattern=nil)
+      reg_dir = Pathname.new(registered_dir)
+      task_names = Dir[File.join(registered_dir, '**/*')].select{|f| File.file? f}.map do |f|
+        task_name = Pathname.new(f).relative_path_from(reg_dir).to_s
+        Braindump::TaskName.new(task_name)
+      end
+
+      matching = if pattern
+                   task_names.select {|task_name| task_name.to_s =~ pattern }
+                 else
+                   task_names
+                 end
     end
 
     def running

@@ -3,6 +3,7 @@ require 'braindump/refresher'
 require 'braindump/command/cookbook'
 require 'braindump/command/task'
 require 'braindump/command/agent'
+require 'braindump/command/build'
 require 'thor'
 
 module Braindump
@@ -19,6 +20,9 @@ module Braindump
 
     desc 'agent SUBCOMMAND ...ARGS', 'manage the agent'
     subcommand 'agent', Braindump::Command::Agent
+
+    desc 'build SUBCOMMAND ...ARGS', 'manage the chef builds'
+    subcommand 'build', Braindump::Command::Build
 
     desc 'refresh', 'fetch latest chef build and cookbooks'
     def refresh
