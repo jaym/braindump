@@ -1,6 +1,7 @@
 require 'braindump/task_queue'
 require 'braindump/task_manager'
 require 'braindump/logger'
+require 'braindump/mixin/forks'
 require 'pidfile'
 
 module Braindump
@@ -9,6 +10,8 @@ module Braindump
   # launched as a daemon process. There can only be one agent
   # running at a given time.
   class Agent
+    include Braindump::Mixin::Forks
+
     attr_reader :directory
 
     def initialize(base_dir)
@@ -35,11 +38,10 @@ module Braindump
     def refresh
       last_refresh = time_since_last_refresh
       Logger.info("Time since last refresh: #{last_refresh}")
-      if last_refresh < refresh_time
-      else
+      if last_refresh >= refresh_time
         Logger.info("Starting refresher")
         @time_since_last_refresh = Time.now
-        fork_exec("braindump refresh")
+        fork_exec("braindump refresh --no-auto")
       end
     end
 
@@ -101,21 +103,6 @@ module Braindump
       5*60
     end
 
-    def fork_exec(cmd)
-      Logger.info("Running #{cmd}")
-      pid = Process.fork
-      if pid.nil? then
-        ObjectSpace.each_object(File) do |f|
-          begin
-            f.close
-          rescue => e
-          end
-        end
-        Process.daemon
-        exec(cmd)
-      end
-    end
-
     def start_agent
       Logger.info("Starting agent")
       FileUtils.mkdir_p(running_directory)
@@ -124,6 +111,11 @@ module Braindump
 
     def self.task_manager(base_dir)
       Braindump::TaskManager.new(base_dir)
+    end
+
+    def self.running?(base_dir)
+      pidfile = File.expand_path(File.join(base_dir, 'agent', 'agent.pid'))
+      PidFile.running?(pidfile)
     end
 
     private

@@ -1,4 +1,5 @@
 require 'braindump/agent'
+require 'braindump/logger'
 require 'thor'
 
 module Braindump
@@ -9,7 +10,13 @@ module Braindump
       def start
         Braindump::Logger.init(File.expand_path(File.join(options[:home], 'log')))
         Braindump::Logger.level = :debug
-        Braindump::Agent.start(parent_options[:home])
+        begin
+          Braindump::Agent.start(parent_options[:home])
+        rescue => e
+          Logger.error(e)
+          raise
+        end
+
       end
     end
   end
