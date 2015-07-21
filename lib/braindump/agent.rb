@@ -66,18 +66,7 @@ module Braindump
       File.symlink(File.expand_path(task.spec_file), location)
       task.running!
       puts "Starting #{task.task_name}"
-      pid = Process.fork
-      if pid.nil? then
-        ObjectSpace.each_object(File) do |f|
-          begin
-            f.close
-          rescue => e
-          end
-        end
-        exec("braindump task exec #{location}")
-      else
-        Process.detach(pid)
-      end
+      fork_exec("braindump task exec #{location}")
     end
 
     def task_location(task)
@@ -90,6 +79,20 @@ module Braindump
 
     def max_running
       5
+    end
+
+    def fork_exec(cmd)
+      pid = Process.fork
+      if pid.nil? then
+        ObjectSpace.each_object(File) do |f|
+          begin
+            f.close
+          rescue => e
+          end
+        end
+        Process.daemon
+        exec(cmd)
+      end
     end
 
     def start_agent
