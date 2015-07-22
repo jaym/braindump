@@ -91,7 +91,7 @@ module Braindump
     end
 
     def max_running
-      5
+      2
     end
 
     def time_since_last_refresh

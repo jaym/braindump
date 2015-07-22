@@ -78,6 +78,8 @@ module Braindump
         case status
         when 'failed'
           set_color(status, :red)
+        when 'succeeded'
+          set_color(status, :green)
         else
           status
         end
