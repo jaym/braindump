@@ -80,6 +80,8 @@ module Braindump
           set_color(status, :red)
         when 'succeeded'
           set_color(status, :green)
+        when 'running'
+          set_color(status, :magenta)
         else
           status
         end
