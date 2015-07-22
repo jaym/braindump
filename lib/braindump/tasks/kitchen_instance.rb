@@ -87,16 +87,24 @@ module Braindump
       driver_config = {
         'name' => 'ec2',
         'instance_type' => 'm3.medium',
+        'region' => "us-west-2",
+        'availability_zone' => "us-west-2a",
+        'aws_ssh_key_id' => 'jmundrawala',
+      }
+
+      transport_config = {
+        'ssh_key' => '/Users/jmundrawala/.ssh/jmundrawala.pem'
       }
 
       suite_config = params[:kitchen_config]
       suite_config.delete('driver')
 
-      suite_config['provisioner']['require_chef_omnibus'] = params[:chef_version]
+      suite_config['provisioner']['require_chef_omnibus'] = params[:chef_version].to_s
 
       kitchen_config = {
         'platforms' => PLATFORMS,
         'driver' => driver_config,
+        'transport' => transport_config,
         'suites' => [suite_config],
       }
 
