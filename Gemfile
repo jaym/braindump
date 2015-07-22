@@ -6,6 +6,6 @@ gemspec :name => 'braindump'
 gem 'facets', require: false
 gem 'pry'
 
-gem 'kitchen-ec2'
-gem 'kitchen-vagrant'
+gem 'test-kitchen', git: 'https://github.com/jaym/test-kitchen', branch: 'exact-nightly'
+gem 'kitchen-ec2', git: 'https://github.com/test-kitchen/kitchen-ec2'
 gem 'berkshelf'
