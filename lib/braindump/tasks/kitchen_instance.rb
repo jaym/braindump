@@ -45,7 +45,7 @@ module Braindump
       Dir.chdir(File.join(location, 'cookbook')) do
         logger = ::Logger.new(cleanup_file)
         begin
-          kitchen_destroy = Mixlib::ShellOut.new('kitchen destroy', :live_stream => logger)
+          kitchen_destroy = Mixlib::ShellOut.new('kitchen destroy', :live_stream => logger, :env => environment)
           kitchen_destroy.run_command
           if kitchen_destroy.error?
             raise "Command Failed"
