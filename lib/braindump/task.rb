@@ -99,7 +99,7 @@ module Braindump
       when Braindump::Status::Failed, Braindump::Status::Succeeded
         true
       when Braindump::Status::Running
-        PidFile.running?(pid_file)
+        !PidFile.running?(pid_file)
       else
         false
       end
